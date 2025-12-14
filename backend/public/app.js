@@ -1,24 +1,39 @@
-// Init Pi SDK (Sandbox)
-Pi.init({
-  version: "2.0",
-  sandbox: true
+// ===== WAIT PI SDK READY =====
+document.addEventListener("DOMContentLoaded", () => {
+
+  if (!window.Pi) {
+    document.getElementById("output").innerText =
+      "Pi SDK tidak terdeteksi.\nBuka aplikasi ini dari Pi Browser.";
+    return;
+  }
+
+  Pi.init({
+    version: "2.0",
+    sandbox: true
+  });
+
+  document.getElementById("output").innerText =
+    "Pi SDK siap. Silakan Connect Pi Wallet.";
 });
 
-const output = document.getElementById("output");
+// ===== GLOBAL STATE =====
 let currentUser = null;
+const output = document.getElementById("output");
 
 // ===== CONNECT PI WALLET =====
 function connectPi() {
-  output.innerText = "Connecting to Pi Wallet...";
+  output.innerText = "Membuka Pi Wallet...";
 
   Pi.authenticate(
     ["username", "payments"],
-    function (auth) {
+    (auth) => {
       currentUser = auth.user;
-      output.innerText = "Connected:\n" + JSON.stringify(auth, null, 2);
+      output.innerText =
+        "✅ Connected!\nUsername: " + currentUser.username;
     },
-    function (error) {
-      output.innerText = "Auth failed:\n" + JSON.stringify(error);
+    (error) => {
+      output.innerText =
+        "❌ Auth gagal:\n" + JSON.stringify(error, null, 2);
     }
   );
 }
@@ -26,11 +41,9 @@ function connectPi() {
 // ===== PI PAYMENT =====
 function payWithPi() {
   if (!currentUser) {
-    alert("Please connect Pi Wallet first!");
+    alert("Connect Pi Wallet dulu!");
     return;
   }
-
-  output.innerText = "Creating Pi Payment...";
 
   Pi.createPayment(
     {
@@ -39,37 +52,22 @@ function payWithPi() {
       metadata: { app: "ctfproperty" }
     },
     {
-      onReadyForServerApproval: function (paymentId) {
-        output.innerText = "Waiting server approval...\nPayment ID: " + paymentId;
-
-        fetch("/pi/payment/approve", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paymentId })
-        });
+      onReadyForServerApproval(paymentId) {
+        output.innerText = "Menunggu approval server...\n" + paymentId;
       },
 
-      onReadyForServerCompletion: function (paymentId, txid) {
+      onReadyForServerCompletion(paymentId, txid) {
         output.innerText =
-          "Completing payment...\nPayment ID: " +
-          paymentId +
-          "\nTXID: " +
-          txid;
-
-        fetch("/pi/payment/complete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paymentId, txid })
-        });
+          "✅ Payment sukses!\nTXID:\n" + txid;
       },
 
-      onCancel: function (paymentId) {
-        output.innerText = "Payment cancelled: " + paymentId;
+      onCancel(paymentId) {
+        output.innerText = "Payment dibatalkan: " + paymentId;
       },
 
-      onError: function (error, payment) {
+      onError(error, payment) {
         output.innerText =
-          "Payment error:\n" +
+          "❌ Payment error:\n" +
           JSON.stringify({ error, payment }, null, 2);
       }
     }
