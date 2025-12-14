@@ -2,7 +2,6 @@ const express = require("express");
 const path = require("path");
 
 const app = express();
-const PORT = 3000;
 
 // ===== MIDDLEWARE =====
 app.use(express.json());
@@ -45,7 +44,6 @@ app.post("/pi/auth/mock", (req, res) => {
 app.post("/pi/payment/approve", (req, res) => {
   const { paymentId } = req.body;
   console.log("Approve payment:", paymentId);
-
   res.json({ approved: true });
 });
 
@@ -53,7 +51,6 @@ app.post("/pi/payment/approve", (req, res) => {
 app.post("/pi/payment/complete", (req, res) => {
   const { paymentId, txid } = req.body;
   console.log("Complete payment:", paymentId, txid);
-
   res.json({ completed: true });
 });
 
@@ -62,7 +59,19 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// ===== START SERVER =====
-app.listen(PORT, () => {
-  console.log(`Backend running on http://localhost:${PORT}`);
-});
+/**
+ * ==============================
+ * LOCAL vs VERCEL HANDLING
+ * ==============================
+ */
+
+// ⬇️ JALAN LOKAL (node index.js)
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Backend running on http://localhost:${PORT}`);
+  });
+}
+
+// ⬇️ WAJIB untuk Vercel
+module.exports = app;
