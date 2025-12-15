@@ -1,24 +1,24 @@
+let currentUser = null;
+let output = null;
+
 // ===== WAIT PI SDK READY =====
 document.addEventListener("DOMContentLoaded", () => {
 
+  output = document.getElementById("output");
+
   if (!window.Pi) {
-    document.getElementById("output").innerText =
+    output.innerText =
       "Pi SDK tidak terdeteksi.\nBuka aplikasi ini dari Pi Browser.";
     return;
   }
 
   Pi.init({
     version: "2.0",
-    sandbox: true
+    sandbox: false // 🔴 WAJIB FALSE UNTUK POPUP
   });
 
-  document.getElementById("output").innerText =
-    "Pi SDK siap. Silakan Connect Pi Wallet.";
+  output.innerText = "Pi SDK siap. Silakan Connect Pi Wallet.";
 });
-
-// ===== GLOBAL STATE =====
-let currentUser = null;
-const output = document.getElementById("output");
 
 // ===== CONNECT PI WALLET =====
 function connectPi() {
@@ -53,7 +53,8 @@ function payWithPi() {
     },
     {
       onReadyForServerApproval(paymentId) {
-        output.innerText = "Menunggu approval server...\n" + paymentId;
+        output.innerText =
+          "Menunggu approval server...\n" + paymentId;
       },
 
       onReadyForServerCompletion(paymentId, txid) {
@@ -62,7 +63,8 @@ function payWithPi() {
       },
 
       onCancel(paymentId) {
-        output.innerText = "Payment dibatalkan: " + paymentId;
+        output.innerText =
+          "Payment dibatalkan: " + paymentId;
       },
 
       onError(error, payment) {
