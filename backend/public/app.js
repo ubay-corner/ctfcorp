@@ -9,8 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // INIT PI SDK (PRODUCTION MODE)
   Pi.init({
-    version: "2.0"
-  });
+  version: "2.0",
+  sandbox: false // WAJIB untuk Pi Browser
+});
 
   output.innerText = "✅ Pi SDK siap. Silakan Connect Pi Wallet.";
 });
@@ -18,22 +19,30 @@ document.addEventListener("DOMContentLoaded", () => {
 let currentUser = null;
 
 // ===== CONNECT PI WALLET =====
-function connectPi() {
+async function connectPi() {
   const output = document.getElementById("output");
-  output.innerText = "🔐 Membuka Pi Wallet...";
+  output.innerText = "🔐 Menghubungkan Pi Wallet...";
 
-  Pi.authenticate(
-    ["username", "payments"],
-    (auth) => {
-      currentUser = auth.user;
-      output.innerText =
-        "✅ Connected!\nUsername: " + currentUser.username;
-    },
-    (error) => {
-      output.innerText =
-        "❌ Auth gagal:\n" + JSON.stringify(error, null, 2);
-    }
-  );
+  try {
+    const auth = await Pi.authenticate(
+      ["username"],
+      function (payment) {
+        console.log("Incomplete payment:", payment);
+      }
+    );
+
+    currentUser = auth.user;
+
+    output.innerText =
+      "✅ Connected!\nUsername: @" + currentUser.username;
+
+    console.log("AUTH SUCCESS:", auth);
+
+  } catch (err) {
+    output.innerText =
+      "❌ Auth gagal:\n" + JSON.stringify(err, null, 2);
+    console.error(err);
+  }
 }
 
 // ===== PI PAYMENT =====
