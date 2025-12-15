@@ -54,7 +54,7 @@ function payWithPi() {
   }
 
   const output = document.getElementById("output");
-  output.innerText = "💰 Menyiapkan pembayaran Pi...";
+  output.innerText = "⏳ Menyiapkan pembayaran...";
 
   Pi.createPayment(
     {
@@ -63,32 +63,27 @@ function payWithPi() {
       metadata: { app: "ctfproperty" }
     },
     {
-      // ⬇️ WAJIB: server approval
-      onReadyForServerApproval(paymentId) {
-        output.innerText = "⏳ Menunggu approval server...";
+      onReadyForServerApproval: async function (paymentId) {
+        output.innerText = "🟡 Server approval...\nPayment ID: " + paymentId;
 
-        fetch("/api/approve-payment", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ paymentId })
-        })
-          .then(res => res.json())
-          .then(data => {
-            console.log("Approved:", data);
-          })
-          .catch(err => {
-            output.innerText = "❌ Approval gagal";
-            console.error(err);
+        try {
+          const res = await fetch("/api/approve-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paymentId })
           });
+
+          const data = await res.json();
+          console.log("Approve response:", data);
+        } catch (err) {
+          output.innerText = "❌ Gagal approve server\n" + err.message;
+        }
       },
 
-      onReadyForServerCompletion(paymentId, txid) {
-        output.innerText =
-          "✅ Pembayaran sukses!\nTXID:\n" + txid;
+      onReadyForServerCompletion: async function (paymentId, txid) {
+        output.innerText = "✅ Payment sukses!\nTXID:\n" + txid;
 
-        fetch("/api/complete-payment", {
+        await fetch("/api/complete-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ paymentId, txid })
@@ -96,15 +91,15 @@ function payWithPi() {
       },
 
       onCancel(paymentId) {
-        output.innerText = "❌ Payment dibatalkan: " + paymentId;
+        output.innerText = "❌ Payment dibatalkan:\n" + paymentId;
       },
 
       onError(error) {
-        output.innerText =
-          "❌ Payment error:\n" + JSON.stringify(error, null, 2);
+        output.innerText = "❌ Payment error:\n" + JSON.stringify(error);
       }
     }
   );
 }
+
 
 

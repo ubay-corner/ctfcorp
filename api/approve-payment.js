@@ -4,9 +4,8 @@ export default async function handler(req, res) {
   }
 
   const { paymentId } = req.body;
-
   if (!paymentId) {
-    return res.status(400).json({ error: "paymentId is required" });
+    return res.status(400).json({ error: "paymentId required" });
   }
 
   try {
@@ -15,15 +14,15 @@ export default async function handler(req, res) {
       {
         method: "POST",
         headers: {
-          Authorization: `Key ${process.env.PI_API_KEY}`,
+          "Authorization": `Key ${process.env.PI_API_KEY}`,
           "Content-Type": "application/json"
         }
       }
     );
 
     const data = await response.json();
+    return res.status(200).json(data);
 
-    return res.status(200).json({ success: true, data });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
