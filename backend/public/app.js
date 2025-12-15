@@ -1,28 +1,26 @@
-let currentUser = null;
-let output = null;
-
-// ===== WAIT PI SDK READY =====
 document.addEventListener("DOMContentLoaded", () => {
-
-  output = document.getElementById("output");
+  const output = document.getElementById("output");
 
   if (!window.Pi) {
     output.innerText =
-      "Pi SDK tidak terdeteksi.\nBuka aplikasi ini dari Pi Browser.";
+      "❌ Pi SDK tidak terdeteksi.\nBuka aplikasi ini dari Pi Browser.";
     return;
   }
 
+  // INIT PI SDK (PRODUCTION MODE)
   Pi.init({
-    version: "2.0",
-    sandbox: false // 🔴 WAJIB FALSE UNTUK POPUP
+    version: "2.0"
   });
 
-  output.innerText = "Pi SDK siap. Silakan Connect Pi Wallet.";
+  output.innerText = "✅ Pi SDK siap. Silakan Connect Pi Wallet.";
 });
+
+let currentUser = null;
 
 // ===== CONNECT PI WALLET =====
 function connectPi() {
-  output.innerText = "Membuka Pi Wallet...";
+  const output = document.getElementById("output");
+  output.innerText = "🔐 Membuka Pi Wallet...";
 
   Pi.authenticate(
     ["username", "payments"],
@@ -48,29 +46,21 @@ function payWithPi() {
   Pi.createPayment(
     {
       amount: 1,
-      memo: "CTFPROPERTY Test Payment",
+      memo: "CTFPROPERTY Payment",
       metadata: { app: "ctfproperty" }
     },
     {
       onReadyForServerApproval(paymentId) {
-        output.innerText =
-          "Menunggu approval server...\n" + paymentId;
+        console.log("Approval needed:", paymentId);
       },
-
       onReadyForServerCompletion(paymentId, txid) {
-        output.innerText =
-          "✅ Payment sukses!\nTXID:\n" + txid;
+        alert("Payment sukses!\nTXID: " + txid);
       },
-
       onCancel(paymentId) {
-        output.innerText =
-          "Payment dibatalkan: " + paymentId;
+        alert("Payment dibatalkan: " + paymentId);
       },
-
-      onError(error, payment) {
-        output.innerText =
-          "❌ Payment error:\n" +
-          JSON.stringify({ error, payment }, null, 2);
+      onError(error) {
+        alert("Payment error: " + JSON.stringify(error));
       }
     }
   );
