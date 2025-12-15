@@ -46,11 +46,15 @@ async function connectPi() {
 }
 
 // ===== PI PAYMENT =====
+
 function payWithPi() {
   if (!currentUser) {
     alert("Connect Pi Wallet dulu!");
     return;
   }
+
+  const output = document.getElementById("output");
+  output.innerText = "💰 Menyiapkan pembayaran Pi...";
 
   Pi.createPayment(
     {
@@ -59,18 +63,48 @@ function payWithPi() {
       metadata: { app: "ctfproperty" }
     },
     {
+      // ⬇️ WAJIB: server approval
       onReadyForServerApproval(paymentId) {
-        console.log("Approval needed:", paymentId);
+        output.innerText = "⏳ Menunggu approval server...";
+
+        fetch("/api/approve-payment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ paymentId })
+        })
+          .then(res => res.json())
+          .then(data => {
+            console.log("Approved:", data);
+          })
+          .catch(err => {
+            output.innerText = "❌ Approval gagal";
+            console.error(err);
+          });
       },
+
       onReadyForServerCompletion(paymentId, txid) {
-        alert("Payment sukses!\nTXID: " + txid);
+        output.innerText =
+          "✅ Pembayaran sukses!\nTXID:\n" + txid;
+
+        fetch("/api/complete-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paymentId, txid })
+        });
       },
+
       onCancel(paymentId) {
-        alert("Payment dibatalkan: " + paymentId);
+        output.innerText = "❌ Payment dibatalkan: " + paymentId;
       },
+
       onError(error) {
-        alert("Payment error: " + JSON.stringify(error));
+        output.innerText =
+          "❌ Payment error:\n" + JSON.stringify(error, null, 2);
       }
     }
   );
 }
+
+

@@ -15,7 +15,7 @@ export default async function handler(req, res) {
       {
         method: "POST",
         headers: {
-          "Authorization": `Key ${process.env.PI_API_KEY}`,
+          Authorization: `Key ${process.env.PI_API_KEY}`,
           "Content-Type": "application/json"
         }
       }
@@ -23,13 +23,8 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    return res.status(200).json({
-      success: true,
-      data
-    });
-  } catch (error) {
-    return res.status(500).json({
-      error: error.message
-    });
+    return res.status(200).json({ success: true, data });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 }
