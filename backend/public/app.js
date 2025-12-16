@@ -63,26 +63,35 @@ function payWithPi() {
       metadata: { app: "ctfproperty" }
     },
     {
-      onReadyForServerApproval: async function (paymentId) {
-        output.innerText = "🟡 Server approval...\nPayment ID: " + paymentId;
-
+      // STEP 1 — SERVER APPROVAL
+      onReadyForServerApproval: async (paymentId) => {
         try {
           const res = await fetch("/api/approve-payment", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json"
+            },
             body: JSON.stringify({ paymentId })
           });
 
           const data = await res.json();
-          console.log("Approve response:", data);
+
+          if (!res.ok) {
+            throw new Error(JSON.stringify(data));
+          }
+
         } catch (err) {
-          output.innerText = "❌ Gagal approve server\n" + err.message;
+          output.innerText =
+            "❌ Gagal approve payment:\n" + err.message;
         }
       },
 
-      onReadyForServerCompletion: async function (paymentId, txid) {
-        output.innerText = "✅ Payment sukses!\nTXID:\n" + txid;
+      // STEP 2 — SERVER COMPLETION (WAJIB ADA)
+      onReadyForServerCompletion: async (paymentId, txid) => {
+        output.innerText =
+          "✅ Pembayaran berhasil!\nTXID: " + txid;
 
+        // OPTIONAL (tapi disarankan)
         await fetch("/api/complete-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -90,16 +99,15 @@ function payWithPi() {
         });
       },
 
-      onCancel(paymentId) {
-        output.innerText = "❌ Payment dibatalkan:\n" + paymentId;
+      onCancel: (paymentId) => {
+        output.innerText = "❌ Pembayaran dibatalkan.";
       },
 
-      onError(error) {
-        output.innerText = "❌ Payment error:\n" + JSON.stringify(error);
+      onError: (err) => {
+        output.innerText =
+          "❌ Error pembayaran:\n" + JSON.stringify(err, null, 2);
       }
     }
   );
 }
-
-
 
