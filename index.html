@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>CTFPROPERTY</title>
-</head>
 
+  <!-- Pi SDK -->
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+</head>
 <body>
+
   <h1>CTFPROPERTY</h1>
 
   <button onclick="connectPi()">Connect Pi Wallet</button>
@@ -14,10 +17,6 @@
 
   <pre id="output">Waiting...</pre>
 
-  <!-- PI SDK HARUS PERTAMA -->
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-
-  <!-- APP.JS SETELAH PI SDK -->
-  <script src="app.js"></script>
+  <script src="/app.js"></script>
 </body>
 </html>

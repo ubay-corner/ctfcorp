@@ -1,14 +1,21 @@
 let piUser = null;
 
-// INIT PI SDK (JANGAN DI DALAM DOMContentLoaded)
-if (!window.Pi) {
-  console.error("Pi SDK not loaded");
-} else {
+// INIT PI SDK
+document.addEventListener("DOMContentLoaded", () => {
+  if (!window.Pi) {
+    document.getElementById("output").innerText =
+      "❌ Pi SDK not loaded";
+    return;
+  }
+
   Pi.init({
     version: "2.0",
-    sandbox: true   // testnet OK
+    sandbox: false
   });
-}
+
+  document.getElementById("output").innerText =
+    "✅ Pi SDK Loaded";
+});
 
 // CONNECT WALLET
 window.connectPi = async function () {
@@ -36,12 +43,13 @@ window.payWithPi = async function () {
   document.getElementById("output").innerText =
     "⏳ Preparing payment...";
 
-  try {
-    await Pi.createPayment({
+  Pi.createPayment(
+    {
       amount: 1,
-      memo: "CTFPROPERTY Test Payment",
+      memo: "CTFPROPERTY Payment",
       metadata: { app: "CTFPROPERTY" }
-    }, {
+    },
+    {
       onReadyForServerApproval: async (paymentId) => {
         await fetch("/api/approve-payment", {
           method: "POST",
@@ -49,6 +57,7 @@ window.payWithPi = async function () {
           body: JSON.stringify({ paymentId })
         });
       },
+
       onReadyForServerCompletion: async (paymentId) => {
         await fetch("/api/complete-payment", {
           method: "POST",
@@ -56,18 +65,16 @@ window.payWithPi = async function () {
           body: JSON.stringify({ paymentId })
         });
       },
+
       onCancel: () => {
         document.getElementById("output").innerText =
           "❌ Payment cancelled";
       },
+
       onError: (error) => {
         document.getElementById("output").innerText =
           "❌ Payment error: " + error;
       }
-    });
-
-  } catch (err) {
-    document.getElementById("output").innerText =
-      "❌ Failed: " + err;
-  }
+    }
+  );
 };
