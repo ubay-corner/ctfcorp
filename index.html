@@ -3,20 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <title>CTFPROPERTY</title>
-
-  <!-- Pi SDK -->
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
-<body>
 
+<body>
   <h1>CTFPROPERTY</h1>
 
   <button onclick="connectPi()">Connect Pi Wallet</button>
-<br><br>
-<button onclick="payWithPi()">Pay 1 Pi</button>
+  <br><br>
+  <button onclick="payWithPi()">Pay 1 Pi</button>
 
-<pre id="output">Waiting...</pre>
+  <pre id="output">Waiting...</pre>
 
-<script src="https://sdk.minepi.com/pi-sdk.js"></script>
-<script src="app.js"></script>
+  <!-- PI SDK HARUS PERTAMA -->
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 
+  <!-- APP.JS SETELAH PI SDK -->
+  <script src="app.js"></script>
+</body>
+</html>

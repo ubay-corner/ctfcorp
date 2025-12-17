@@ -1,17 +1,14 @@
 let piUser = null;
 
-// INIT PI SDK
-document.addEventListener("DOMContentLoaded", () => {
-  if (!window.Pi) {
-    document.getElementById("output").innerText = "Pi SDK not loaded";
-    return;
-  }
-
+// INIT PI SDK (JANGAN DI DALAM DOMContentLoaded)
+if (!window.Pi) {
+  console.error("Pi SDK not loaded");
+} else {
   Pi.init({
     version: "2.0",
-    sandbox: true
+    sandbox: true   // testnet OK
   });
-});
+}
 
 // CONNECT WALLET
 window.connectPi = async function () {
